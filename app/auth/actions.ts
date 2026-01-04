@@ -51,3 +51,56 @@ export async function signup(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/login?signup=success')
 }
+
+export async function forgotPassword(formData: FormData) {
+  const supabase = await createClient()
+  const email = formData.get('email') as string
+  const callbackUrl = formData.get('callbackUrl') as string
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: callbackUrl,
+  })
+
+  if (error) {
+    console.error(error)
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+
+export async function resetPassword(formData: FormData) {
+  const supabase = await createClient()
+  const password = formData.get('password') as string
+  const confirmPassword = formData.get('confirmPassword') as string
+
+  if (password !== confirmPassword) {
+    return { error: 'Passwords do not match' }
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: password,
+  })
+
+  if (error) {
+    console.error(error)
+    return { error: error.message }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/')
+}
+
+export async function logout() {
+  const supabase = await createClient()
+  
+  const { error } = await supabase.auth.signOut()
+  
+  if (error) {
+    console.error(error)
+    return { error: error.message }
+  }
+  
+  revalidatePath('/', 'layout')
+  redirect('/login')
+}

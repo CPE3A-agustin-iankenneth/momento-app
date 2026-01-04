@@ -15,6 +15,17 @@ import Image from 'next/image'
 import { Input } from "@/components/ui/input"
 import { MultiSelect, MultiSelectContent, MultiSelectGroup, MultiSelectItem, MultiSelectTrigger, MultiSelectValue } from "@/components/ui/multi-select"
 import { useUserTags } from "@/hooks/use-user-tags"
+import { ArrowLeft, Trash2 } from "lucide-react"
+import Link from "next/link"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 
 const formSchema = z.object({
     title: z.string().min(1, "Title is required").max(70, "Title must be at most 70 characters"),
@@ -27,6 +38,8 @@ const formSchema = z.object({
 
 export default function EditForm({ entry }: { entry: Entry }) {
     const [uploading, setUploading] = useState<boolean>(false);
+    const [deleting, setDeleting] = useState<boolean>(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
     const router = useRouter();
     const { tags: userTags } = useUserTags();
 
@@ -40,6 +53,28 @@ export default function EditForm({ entry }: { entry: Entry }) {
             tags: entry.tags?.map(tag => tag.name) || [], 
         }
     });
+
+    async function handleDelete() {
+        setDeleting(true);
+        try {
+            const res = await fetch(`/api/entries/${entry.id}`, {
+                method: 'DELETE',
+            });
+
+            if (res.ok) {
+                router.push('/');
+                router.refresh();
+            } else {
+                const errorData = await res.json();
+                console.error('Error deleting momento:', errorData.error);
+            }
+        } catch (error) {
+            console.error('Error deleting momento:', error);
+        } finally {
+            setDeleting(false);
+            setShowDeleteDialog(false);
+        }
+    }
 
     
 
@@ -67,6 +102,14 @@ export default function EditForm({ entry }: { entry: Entry }) {
 
     return (
         <div className="w-full max-w-sm mx-auto px-4 py-8">
+            {/* Back Button */}
+            <nav className="mb-6">
+                <Link href={`/entry/${entry.id}`} className="flex items-center text-muted-foreground hover:text-foreground transition-colors">
+                    <ArrowLeft className="w-5 h-5 mr-2" />
+                    <span>Back to entry</span>
+                </Link>
+            </nav>
+
             <Card>
                 <CardContent>
                     <Form {...form}>
@@ -143,6 +186,34 @@ export default function EditForm({ entry }: { entry: Entry }) {
                             </Button>
                         </form>
                     </Form>
+
+                    {/* Delete Button */}
+                    <div className="mt-6 pt-6 border-t border-border">
+                        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                            <DialogTrigger asChild>
+                                <Button variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/10">
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete Momento
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Delete this momento?</DialogTitle>
+                                    <DialogDescription>
+                                        This action cannot be undone. This will permanently delete your momento and its associated image.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter className="gap-2 sm:gap-0">
+                                    <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+                                        {deleting ? 'Deleting...' : 'Delete'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </CardContent>
             </Card>
         </div>

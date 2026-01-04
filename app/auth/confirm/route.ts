@@ -18,6 +18,10 @@ export async function GET(request: NextRequest) {
       token_hash,
     })
     if (!error) {
+      // For new signups, redirect to avatar setup page
+      if (type === 'signup' || type === 'email') {
+        redirect('/setup/avatar')
+      }
       // redirect user to specified redirect URL or root of app
       redirect(next)
     }

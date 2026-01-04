@@ -5,6 +5,7 @@ import { generateSignedUrl } from "@/utils/generateSignedUrl";
 export async function GET(req: NextRequest) {
     const supabase = await createClient();
     const date = req.nextUrl.searchParams.get("date");
+    const timezone = req.nextUrl.searchParams.get("tz") || "UTC";
 
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) {
@@ -13,15 +14,33 @@ export async function GET(req: NextRequest) {
     
 
     if (date) {
-        const startDate = `${date} 00:00:00`;
-        const endDate = `${date} 23:59:59`;
+        // Get the UTC offset for the given timezone on this date
+        const formatter = new Intl.DateTimeFormat('en-CA', { 
+            timeZone: timezone, 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+
+        const tzDate = new Date(`${date}T12:00:00`);
+        const utcTime = tzDate.getTime();
+        const tzTime = new Date(formatter.format(tzDate).replace(',', '').replace(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/, '$1-$2-$3T$4:$5:$6')).getTime();
+        const offset = utcTime - tzTime;
+
+        // Adjust the query range to account for timezone
+        const startUTC = new Date(new Date(`${date}T00:00:00`).getTime() - offset).toISOString();
+        const endUTC = new Date(new Date(`${date}T23:59:59.999`).getTime() - offset).toISOString();
 
         const { data: entries, error: entriesError } = await supabase
             .from("entries")
             .select('*')
             .eq('user_id', userData.user.id)
-            .gte('created_at', startDate)
-            .lt('created_at', endDate)
+            .gte('created_at', startUTC)
+            .lte('created_at', endUTC)
         if (entriesError) {
             return NextResponse.json({ error: entriesError.message }, { status: 500 });
         }

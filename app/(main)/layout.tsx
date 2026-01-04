@@ -3,8 +3,6 @@ import { cookies } from "next/headers"
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/app-sidebar";
 import BottomNav from "@/components/bottom-nav";
-import { CircleUser } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,9 +26,6 @@ export default async function RootLayout({
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         <div className="flex items-center justify-between md:hidden py-4 px-6 flex-shrink-0">
           <header className="text-xl">momento</header>
-          <Button variant="ghost" size={"icon"}>
-            <CircleUser />
-          </Button>
         </div>
         <div className="flex-1 flex justify-center min-h-0 overflow-hidden">
           {children}

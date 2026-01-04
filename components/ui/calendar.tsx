@@ -10,6 +10,7 @@ import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
+import formatDate from "@/utils/formatDate"
 
 function Calendar({
   className,
@@ -20,15 +21,22 @@ function Calendar({
   formatters,
   components,
   entryDates = [],
+  entryDateImageMap = {},
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
   entryDates?: Date[]
+  entryDateImageMap?: Record<string, string>
 }) {
   const defaultClassNames = getDefaultClassNames()
 
   const hasEntry = (date: Date) => {
     return entryDates.some(entryDate => entryDate.toDateString() === date.toDateString())
+  }
+
+  const getEntryImage = (date: Date) => {
+    const dateString = formatDate(date)
+    return entryDateImageMap[dateString]
   }
 
   return (
@@ -162,7 +170,11 @@ function Calendar({
           )
         },
         DayButton: (props) => (
-          <CalendarDayButton {...props} hasEntry={hasEntry(props.day.date)} />
+          <CalendarDayButton 
+            {...props} 
+            hasEntry={hasEntry(props.day.date)} 
+            entryImageUrl={getEntryImage(props.day.date)}
+          />
         ),
         WeekNumber: ({ children, ...props }) => {
           return (
@@ -185,9 +197,11 @@ function CalendarDayButton({
   day,
   modifiers,
   hasEntry = false,
+  entryImageUrl,
   ...props
 }: React.ComponentProps<typeof DayButton> & {
   hasEntry?: boolean
+  entryImageUrl?: string
 }) {
   const defaultClassNames = getDefaultClassNames()
 
@@ -240,14 +254,30 @@ function CalendarDayButton({
         data-[range-middle=true]:rounded-none 
         data-[range-start=true]:rounded-md 
         data-[range-start=true]:rounded-l-md 
-        [&>span]:text-md [&>span]:opacity-70`,
+        [&>span]:text-md [&>span]:opacity-70
+        overflow-hidden relative`,
         defaultClassNames.day,
         className
       )}
       {...props}
     >
-      <span>{day.date.getDate()}</span>
-      {hasEntry && (
+      {/* Entry image preview as background */}
+      {entryImageUrl && (
+        <div 
+          className="absolute inset-0 rounded-md overflow-hidden"
+          style={{
+            backgroundImage: `url(${entryImageUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.4,
+          }}
+        />
+      )}
+      <span className={cn(
+        "relative z-10",
+        entryImageUrl && "font-semibold text-foreground drop-shadow-sm"
+      )}>{day.date.getDate()}</span>
+      {hasEntry && !entryImageUrl && (
         <div className="w-1.75 h-1.75 bg-accent/50 rounded-full absolute bottom-1" />
       )}
     </Button>

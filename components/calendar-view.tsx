@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import formatDate from "@/utils/formatDate"
 
-export default function CalendarView({ entryDates }: { entryDates: Date[] }) {
+interface CalendarViewProps {
+    entryDates: Date[]
+    entryDateImageMap?: Record<string, string>
+}
+
+export default function CalendarView({ entryDates, entryDateImageMap = {} }: CalendarViewProps) {
     const router = useRouter()
     const [selectedDay, setSelectedDay] = useState<Date | undefined>(new Date())
 
@@ -24,6 +29,7 @@ export default function CalendarView({ entryDates }: { entryDates: Date[] }) {
         <div className="flex justify-center">
             <Calendar 
                 entryDates={entryDates}
+                entryDateImageMap={entryDateImageMap}
                 mode="single"
                 selected={selectedDay}
                 onSelect={handleDateSelect}

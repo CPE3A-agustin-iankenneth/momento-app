@@ -62,9 +62,9 @@ export default function SignUpForm() {
    })
 
   return (
-    <div className='flex flex-col w-lg items-center justify-center min-h-screen gap-4'>
+    <div className='flex flex-col w-full md:w-md md:mx-auto items-center justify-center min-h-screen gap-4 px-4'>
       <h1 className='text-3xl'>momento</h1>
-      <Card className='w-full max-w-sm'>
+      <Card className='w-full'>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>

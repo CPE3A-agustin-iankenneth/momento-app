@@ -21,14 +21,18 @@ const views = [
     title: "calendar",
     href: "/calendar"
   },
-    {
+  {
     title: "list",
     href: "/list"
   },
-    {
+  {
     title: "gallery",
     href: "/gallery"
   },
+  {
+    title: "dashboard",
+    href: "/dashboard"
+  }
 
 ]
 
