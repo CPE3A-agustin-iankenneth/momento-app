@@ -116,7 +116,7 @@ export default function CreateForm({ signedUrl, filePath }: CreateFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <Input placeholder="Title" {...field} />
+                                            <Input placeholder="Title" className="mb-4" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -126,7 +126,7 @@ export default function CreateForm({ signedUrl, filePath }: CreateFormProps) {
                                 control={form.control}
                                 name="tags"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="mb-4">
                                         <FormLabel>Select Tags</FormLabel>
                                         <MultiSelect
                                             onValuesChange={(field.onChange)}

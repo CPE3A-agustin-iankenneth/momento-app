@@ -25,14 +25,21 @@ export default function Heatmap(
     const today = new Date();
     const yearAgo = new Date();
     yearAgo.setFullYear(today.getFullYear() - 1);
-    const startDate = new Date(yearAgo);
-    const endDate = new Date(today);
+    
+    // Normalize dates to start of day in local timezone
+    const startDate = new Date(yearAgo.getFullYear(), yearAgo.getMonth(), yearAgo.getDate());
+    const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-    const daysInMonth = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const calendarGrid = Array.from({ length: daysInMonth }, (_, i) => {
+    // Add 1 to include today in the count
+    const daysInRange = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const calendarGrid = Array.from({ length: daysInRange }, (_, i) => {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
-        return date.toISOString().slice(0, 10);
+        // Format as YYYY-MM-DD in local timezone
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     })
     
     const highestValue = Object.values(weightedDates || {}).reduce((a, b) => Math.max(a, b), -Infinity)

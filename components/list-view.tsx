@@ -28,7 +28,8 @@ export default function ListView() {
         setLoading(true)
         setError(null)
         const fetchEntries = async () => {
-            await fetch (`/api/entries?date=${dateParam || `${new Date().toISOString().slice(0, 10)}`}`)
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+            await fetch (`/api/entries?date=${dateParam || `${new Date().toISOString().slice(0, 10)}`}&tz=${encodeURIComponent(tz)}`)
             .then(res => res.json())
             .then(data => {
                 setEntries(data.entries || [])

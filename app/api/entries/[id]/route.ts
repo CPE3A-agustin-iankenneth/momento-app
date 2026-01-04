@@ -107,3 +107,60 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ success: true });
 
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+    const supabase = await createClient();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = params;
+
+    // First verify the entry belongs to the user
+    const { data: entry, error: entryError } = await supabase
+        .from("entries")
+        .select("id, user_id, image_url")
+        .eq("id", id)
+        .single();
+    
+    if (entryError) {
+        return NextResponse.json({ error: entryError.message }, { status: 500 });
+    }
+    if (!entry) {
+        return NextResponse.json({ error: "Entry not found" }, { status: 404 });
+    }
+    if (entry.user_id !== userData.user.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    // Delete entry_tags first (due to foreign key constraint)
+    const { error: deleteTagsError } = await supabase
+        .from("entry_tags")
+        .delete()
+        .eq("entry_id", id);
+    if (deleteTagsError) {
+        return NextResponse.json({ error: deleteTagsError.message }, { status: 500 });
+    }
+
+    // Delete the entry
+    const { error: deleteError } = await supabase
+        .from("entries")
+        .delete()
+        .eq("id", id);
+    if (deleteError) {
+        return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    // Optionally delete the image from storage if it exists
+    if (entry.image_url) {
+        const { error: storageError } = await supabase.storage
+            .from("entries")
+            .remove([entry.image_url]);
+        if (storageError) {
+            console.error("Failed to delete image from storage:", storageError);
+        }
+    }
+
+    return NextResponse.json({ success: true });
+}
