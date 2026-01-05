@@ -4,7 +4,7 @@ import { getAllEntries } from "@/utils/getAllEntries"
 import Heatmap from "@/components/heatmap"
 import DailyEntryWrapper from "@/components/daily-entry-wrapper"
 import Image from "next/image"
-import { Calendar, Heart, TrendingUp, Camera, Settings } from "lucide-react"
+import { Heart, TrendingUp, Camera, Settings, Tag } from "lucide-react"
 import Link from "next/link"
 
 export default async function Dashboard() {
@@ -22,10 +22,15 @@ export default async function Dashboard() {
     const allEntries = await getAllEntries()
     const faveEntries = await getAllEntries({ isFavorite: true })
 
+    // Fetch total tags count
+    const { count: totalTags } = await supabase
+        .from('tags')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user?.id)
+
     // Calculate statistics
     const totalEntries = allEntries.length
     const totalFavorites = faveEntries.length
-    const entriesWithImages = allEntries.filter(e => e.image_url).length
     
     // Calculate current streak
     const calculateStreak = () => {
@@ -137,10 +142,10 @@ export default async function Dashboard() {
                 
                 <div className="bg-card border border-border rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground uppercase tracking-wider">With Photos</span>
+                        <Tag className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider">Total Tags</span>
                     </div>
-                    <p className="text-2xl font-bold">{entriesWithImages}</p>
+                    <p className="text-2xl font-bold">{totalTags || 0}</p>
                 </div>
             </div>
 

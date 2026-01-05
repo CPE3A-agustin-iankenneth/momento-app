@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
             .eq('user_id', userData.user.id)
             .gte('created_at', startUTC)
             .lte('created_at', endUTC)
+            .order('created_at', { ascending: false });
         if (entriesError) {
             return NextResponse.json({ error: entriesError.message }, { status: 500 });
         }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import CalendarStrip from "./callendar-strip"
 import EmptyView from "./empty-view"
 import DailyEntryWrapper from "./daily-entry-wrapper"
@@ -12,12 +12,27 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useImageUpload } from "@/hooks/use-image-upload"
 
-export default function DailyView({entryDates}: {entryDates: Date[]}) {
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-    const [entries, setEntries] = useState<Entry[]>([])
-    const [loading, setLoading] = useState<boolean>(false)
-    const [error, setError] = useState<string | null>(null)
+export default function DailyView({entryDates, initialEntries, initialDate}: {entryDates: Date[], initialEntries: Entry[], initialDate: string}) {
+    const parseDate = (dateStr: string) => {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        return new Date(y, m - 1, d);
+    }
+
+    const [selectedDate, setSelectedDate] = useState<Date>(parseDate(initialDate))
     const router = useRouter()
+    const searchParams = useSearchParams()
+
+    useEffect(() => {
+        if (!searchParams.get('date')) {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+            const today = new Date()
+            router.replace(`/?date=${formatDate(today)}&tz=${encodeURIComponent(tz)}`)
+        }
+    }, [router, searchParams])
+
+    useEffect(() => {
+        setSelectedDate(parseDate(initialDate))
+    }, [initialDate])
 
     const handleCameraUpload = (url: string, filePath: string) => {
         router.push(`/create?signedUrl=${encodeURIComponent(url)}&filePath=${encodeURIComponent(filePath)}`)
@@ -25,37 +40,22 @@ export default function DailyView({entryDates}: {entryDates: Date[]}) {
 
     const { triggerUpload, uploading } = useImageUpload(handleCameraUpload)
 
+    const handleDateSelect = (date: Date) => {
+        setSelectedDate(date)
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+        router.push(`/?date=${formatDate(date)}&tz=${encodeURIComponent(tz)}`)
+    }
 
-    useEffect(() => {
-        setLoading(true)
-        setError(null)
-        const fetchEntries = async () => {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-            await fetch (`/api/entries?date=${formatDate(selectedDate)}&tz=${encodeURIComponent(tz)}`)
-            .then(res => res.json())
-            .then(data => {
-                setEntries(data.entries || [])
-                setLoading(false)
-            })
-            .catch(() => {
-                setError("Failed to fetch entries.")
-                setLoading(false)
-            })
-        }
-        fetchEntries()
-    }, [selectedDate])
-
+    const entries = initialEntries
 
     return (
         <div className="flex flex-col h-full">
             <div className="flex-shrink-0">
-                <CalendarStrip onDateSelect={setSelectedDate} entryDates={entryDates} />
+                <CalendarStrip onDateSelect={handleDateSelect} entryDates={entryDates} selectedDate={selectedDate} />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-hide">
                 <div className="flex flex-1 h-full flex-col items-center justify-center mt-4">
-                    {loading && <p>Loading...</p>}
-                    {error && <p className="text-destructive">{error}</p>}
-                    {!loading && !error && (entries.length === 0 ? 
+                    {(entries.length === 0 ? 
                         <div>
                             <EmptyView />
                         </div> 

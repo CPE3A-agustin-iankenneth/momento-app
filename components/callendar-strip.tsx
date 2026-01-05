@@ -5,10 +5,12 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { format, subDays, isToday, isSameDay } from "date-fns"
 
-export default function CalendarStrip({ onDateSelect, entryDates }: { onDateSelect?: (date: Date) => void, entryDates: Date[] }) {
+export default function CalendarStrip({ onDateSelect, entryDates, selectedDate: externalSelectedDate }: { onDateSelect?: (date: Date) => void, entryDates: Date[], selectedDate?: Date }) {
     const today = new Date()
     const days = Array.from({ length: 30 }, (_, i) => subDays(today, i)).reverse()
-    const [selectedDate, setSelectedDate] = useState<Date>(today);
+    const [internalSelectedDate, setInternalSelectedDate] = useState<Date>(today);
+    
+    const selectedDate = externalSelectedDate ?? internalSelectedDate;
     const [showLeftFade, setShowLeftFade] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const dayRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -35,7 +37,9 @@ export default function CalendarStrip({ onDateSelect, entryDates }: { onDateSele
     }, []);
 
     const handleDayClick = (day: Date, idx: number) => {
-        setSelectedDate(day);
+        if (!externalSelectedDate) {
+            setInternalSelectedDate(day);
+        }
         onDateSelect?.(day);
         dayRefs.current[idx]?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
     }

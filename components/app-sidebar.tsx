@@ -10,6 +10,9 @@ import {
   SidebarHeader, 
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { Search } from "lucide-react";
+import SearchDialog from "@/components/search-dialog";
+import { Button } from "@/components/ui/button";
 
 
 const views = [
@@ -20,10 +23,6 @@ const views = [
   {
     title: "calendar",
     href: "/calendar"
-  },
-  {
-    title: "list",
-    href: "/list"
   },
   {
     title: "gallery",
@@ -44,6 +43,18 @@ export default function AppSidebar() {
           <SidebarHeader>
             <h1 className="text-3xl text-balance">momento</h1>
           </SidebarHeader>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SearchDialog 
+                trigger={
+                  <Button variant="outline" className="w-full justify-start gap-2 text-muted-foreground">
+                    <Search className="h-4 w-4" />
+                    Search entries...
+                  </Button>
+                }
+              />
+            </SidebarGroupContent>
+          </SidebarGroup>
           <SidebarGroup>
             <SidebarGroupLabel className="font-bold tracking-widest text-sidebar-foreground/50">CHANGE VIEW</SidebarGroupLabel>
             <SidebarGroupContent>

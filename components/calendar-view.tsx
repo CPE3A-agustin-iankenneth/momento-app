@@ -2,22 +2,35 @@
 
 import { Calendar } from "@/components/ui/calendar"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import formatDate from "@/utils/formatDate"
 
 interface CalendarViewProps {
     entryDates: Date[]
     entryDateImageMap?: Record<string, string>
+    selectedDate?: string
 }
 
-export default function CalendarView({ entryDates, entryDateImageMap = {} }: CalendarViewProps) {
+export default function CalendarView({ entryDates, entryDateImageMap = {}, selectedDate }: CalendarViewProps) {
     const router = useRouter()
-    const [selectedDay, setSelectedDay] = useState<Date | undefined>(new Date())
+    
+    const parseDate = (dateStr?: string) => {
+        if (!dateStr) return new Date();
+        const [y, m, d] = dateStr.split('-').map(Number);
+        return new Date(y, m - 1, d);
+    }
+
+    const [selectedDay, setSelectedDay] = useState<Date | undefined>(parseDate(selectedDate))
+
+    useEffect(() => {
+        setSelectedDay(parseDate(selectedDate))
+    }, [selectedDate])
 
     const handleDateSelect = (date: Date | undefined) => {
         if (date) {
             const dateString = formatDate(date)
-            router.push(`/calendar?date=${dateString}`)
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+            router.push(`/calendar?date=${dateString}&tz=${encodeURIComponent(tz)}`)
             setSelectedDay(date)
         }
         else {
