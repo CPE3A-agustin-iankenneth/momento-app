@@ -8,7 +8,7 @@ export default async function EntryPage({ params }: { params: { id: string }}) {
     const entry = await getEntry(id);
 
     return (
-        <div className="w-full">
+        <div className="w-full md:w-md md:mx-auto">
             <EntryNav entryId={entry.id} isFavorite={entry.is_favorite} />
             {entry.image_url && (
                 <Image 

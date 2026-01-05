@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Download, X } from 'lucide-react'
+import { Download, X, Plus, Share } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -91,14 +91,14 @@ export default function InstallPrompt() {
                 <li>
                   Tap the share button{' '}
                   <span className="inline-flex items-center justify-center w-6 h-6 bg-muted rounded">
-                    ⎋
+                    <Share className="size-4" />
                   </span>
                 </li>
                 <li>
                   Scroll down and tap{' '}
                   <span className="font-medium">&quot;Add to Home Screen&quot;</span>{' '}
                   <span className="inline-flex items-center justify-center w-6 h-6 bg-muted rounded">
-                    ➕
+                    <Plus className="size-4" />
                   </span>
                 </li>
                 <li>
