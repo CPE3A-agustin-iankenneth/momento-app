@@ -43,7 +43,7 @@ export default function SingleEntryView({ entry }: { entry: Entry }) {
     }
 
     return (
-        <div className="block w-full h-full">
+        <div className="block w-full h-full lg:w-lg">
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-2 mb-4 px-4 md:px-8">
                 <Button

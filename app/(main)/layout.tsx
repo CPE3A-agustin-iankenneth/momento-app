@@ -4,6 +4,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/app-sidebar";
 import BottomNav from "@/components/bottom-nav";
 import SearchDialog from "@/components/search-dialog";
+import PushNotificationManager from "@/components/push-notification-manager";
+import InstallPrompt from "@/components/install-prompt";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,7 +29,11 @@ export default async function RootLayout({
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         <div className="flex items-center justify-between md:hidden py-4 px-6 flex-shrink-0">
           <header className="text-xl">momento</header>
-          <SearchDialog />
+          <div className="flex items-center gap-1">
+            <InstallPrompt />
+            <PushNotificationManager />
+            <SearchDialog />
+          </div>
         </div>
         <div className="flex-1 flex justify-center min-h-0 overflow-hidden">
           {children}
