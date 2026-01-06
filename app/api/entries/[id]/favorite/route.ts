@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const { is_favorite } = await req.json();
 
     // Verify the entry belongs to the user

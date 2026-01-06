@@ -3,7 +3,7 @@ import getEntry from "@/utils/getEntry"
 import EntryNav from "@/components/entry-nav"
 import { Tag } from "@/lib/types";
 
-export default async function EntryPage({ params }: { params: { id: string }}) {
+export default async function EntryPage({ params }: { params: Promise<{ id: string }>}) {
     const { id } = await params
     const entry = await getEntry(id);
 

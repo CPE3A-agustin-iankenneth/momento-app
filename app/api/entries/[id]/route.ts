@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { generateSignedUrl } from "@/utils/generateSignedUrl";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     if (id) {
         const { data: entry, error: entryError } = await supabase
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) {
@@ -56,7 +56,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       text: formData.get('content') as string,
       tags: JSON.parse(formData.get('tags') as string) as string[],
     }
-    const { id } = params;
+    const { id } = await params;
 
     const { data: entry, error } = await supabase
       .from('entries')
@@ -108,14 +108,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient();
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // First verify the entry belongs to the user
     const { data: entry, error: entryError } = await supabase

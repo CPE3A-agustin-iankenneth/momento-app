@@ -2,7 +2,7 @@ import EditForm from "@/components/edit-form"
 import getEntry from "@/utils/getEntry"
 import { createClient } from "@/utils/supabase/server"
 
-export default async function EditPage({ params }: { params: { id: string }}) {
+export default async function EditPage({ params }: { params: Promise<{ id: string }>}) {
     const supabase = createClient()
     const { data: { user } } = await (await supabase).auth.getUser()
 
