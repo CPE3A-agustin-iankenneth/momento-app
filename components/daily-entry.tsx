@@ -4,35 +4,28 @@ import Image from "next/image";
 import { Entry } from "@/lib/types";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toggleFavorite } from "@/app/actions/entries";
 
 export default function DailyEntry({ entry }: {entry : Entry}) {
     const [isFavorite, setIsFavorite] = useState(entry.is_favorite || false);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
 
     const handleFavoriteToggle = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         
-        setIsUpdating(true);
-        try {
-            const res = await fetch(`/api/entries/${entry.id}/favorite`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ is_favorite: !isFavorite })
-            });
-            
-            if (res.ok) {
-                setIsFavorite(!isFavorite);
-                router.refresh();
+        const newFavoriteState = !isFavorite;
+        setIsFavorite(newFavoriteState); // Optimistic update
+        
+        startTransition(async () => {
+            try {
+                await toggleFavorite(entry.id, newFavoriteState);
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+                setIsFavorite(!newFavoriteState); // Revert on error
             }
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
-        } finally {
-            setIsUpdating(false);
-        }
+        });
     };
 
     return (
@@ -59,7 +52,7 @@ export default function DailyEntry({ entry }: {entry : Entry}) {
                         variant="ghost"
                         size="icon"
                         onClick={handleFavoriteToggle}
-                        disabled={isUpdating}
+                        disabled={isPending}
                         className="hover:bg-primary/10"
                     >
                         <Heart 

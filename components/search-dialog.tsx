@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
@@ -11,6 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Search, X, Loader2 } from "lucide-react"
 import { Entry, Tag } from "@/lib/types"
 import { useUserTags } from "@/hooks/use-user-tags"
+import { searchEntries } from "@/app/actions/search"
 
 interface SearchDialogProps {
     trigger?: React.ReactNode
@@ -21,27 +22,19 @@ export default function SearchDialog({ trigger }: SearchDialogProps) {
     const [query, setQuery] = useState("")
     const [selectedTags, setSelectedTags] = useState<string[]>([])
     const [results, setResults] = useState<Entry[]>([])
-    const [loading, setLoading] = useState(false)
+    const [isPending, startTransition] = useTransition()
     const router = useRouter()
     const { tags, loading: tagsLoading } = useUserTags()
 
-    const searchEntries = useCallback(async () => {
-        setLoading(true)
-        try {
-            const params = new URLSearchParams()
-            if (query.trim()) params.set("q", query.trim())
-            if (selectedTags.length > 0) params.set("tags", selectedTags.join(","))
-            
-            const response = await fetch(`/api/search?${params.toString()}`)
-            if (response.ok) {
-                const data = await response.json()
-                setResults(data.entries || [])
+    const performSearch = useCallback(async () => {
+        startTransition(async () => {
+            try {
+                const entries = await searchEntries(query.trim(), selectedTags)
+                setResults(entries)
+            } catch (error) {
+                console.error("Search failed:", error)
             }
-        } catch (error) {
-            console.error("Search failed:", error)
-        } finally {
-            setLoading(false)
-        }
+        })
     }, [query, selectedTags])
 
     // Debounced search
@@ -49,11 +42,11 @@ export default function SearchDialog({ trigger }: SearchDialogProps) {
         if (!open) return
         
         const timeoutId = setTimeout(() => {
-            searchEntries()
+            performSearch()
         }, 300)
 
         return () => clearTimeout(timeoutId)
-    }, [query, selectedTags, open, searchEntries])
+    }, [query, selectedTags, open, performSearch])
 
     const toggleTag = (tagId: string) => {
         setSelectedTags((prev) =>
@@ -133,7 +126,7 @@ export default function SearchDialog({ trigger }: SearchDialogProps) {
                 {/* Results */}
                 <ScrollArea className="flex-1 min-h-0 max-h-[50vh]">
                     <div className="p-4">
-                        {loading ? (
+                        {isPending ? (
                             <div className="flex items-center justify-center py-8">
                                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                             </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -28,6 +28,7 @@ import UploadImage from "@/components/upload-image"
 import { Input } from "@/components/ui/input"
 import { useImageUpload } from "@/hooks/use-image-upload"
 import { useUserTags } from "@/hooks/use-user-tags"
+import { createMoment } from "@/app/actions/entries"
 
 const formSchema = z.object({
     title: z.string().min(1, "Title is required").max(70, "Title must be at most 70 characters"),
@@ -52,6 +53,7 @@ export default function CreateForm({ signedUrl, filePath }: CreateFormProps) {
     const router = useRouter();
 
     const { uploading } = useImageUpload()
+    const [isPending, startTransition] = useTransition()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -73,16 +75,14 @@ export default function CreateForm({ signedUrl, filePath }: CreateFormProps) {
         formData.append('content', data.content);
         formData.append('image', currentFilePath || '');
         formData.append('tags', JSON.stringify(data.tags));
-        const res = await fetch('/api/create-moment', {
-            method: 'POST',
-            body: formData,
+        
+        startTransition(async () => {
+            try {
+                await createMoment(formData)
+            } catch (error) {
+                console.error('Error creating moment:', error)
+            }
         })
-        if (res.ok) {
-            window.location.href = '/';
-        } else {
-            const errorData = await res.json();
-            console.error('Error creating moment:', errorData.error);
-        }
     }
 
 
@@ -170,7 +170,7 @@ export default function CreateForm({ signedUrl, filePath }: CreateFormProps) {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit" className="mt-4 w-full cursor-pointer" disabled={!decodedUrl || uploading}>{uploading ? 'Uploading...' : 'Create Momento'}</Button>
+                            <Button type="submit" className="mt-4 w-full cursor-pointer" disabled={!decodedUrl || uploading || isPending}>{uploading || isPending ? 'Creating...' : 'Create Momento'}</Button>
                         </form>
                     </Form>
                 </CardContent>

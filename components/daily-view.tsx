@@ -13,6 +13,12 @@ import { Plus } from "lucide-react"
 import { useImageUpload } from "@/hooks/use-image-upload"
 
 export default function DailyView({entryDates, initialEntries, initialDate}: {entryDates: Date[], initialEntries: Entry[], initialDate: string}) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+    
     const parseDate = (dateStr: string) => {
         const [y, m, d] = dateStr.split('-').map(Number);
         return new Date(y, m - 1, d);
@@ -23,12 +29,14 @@ export default function DailyView({entryDates, initialEntries, initialDate}: {en
     const searchParams = useSearchParams()
 
     useEffect(() => {
+        if (!mounted) return;
+
         if (!searchParams.get('date')) {
             const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
             const today = new Date()
             router.replace(`/?date=${formatDate(today)}&tz=${encodeURIComponent(tz)}`)
         }
-    }, [router, searchParams])
+    }, [router, searchParams, mounted])
 
     useEffect(() => {
         setSelectedDate(parseDate(initialDate))

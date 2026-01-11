@@ -1,5 +1,6 @@
 import { createClient } from "./supabase/client";
 import imageCompression from "browser-image-compression";
+import { generateSignedUploadUrl } from "@/app/actions/storage";
 
 async function compressImage(file: File): Promise<File> {
     const options = {
@@ -45,24 +46,19 @@ export default async function handleUploadImage(
     if (uploadError) {
         console.error("Error uploading image: ", uploadError)
         setUploading(false)
+        return
     }
 
     console.log("File uploaded successfully:", filePath)
 
     setUploading(false)
 
-    const response = await fetch('/api/generate-signed', {
-        method: 'POST',
-        body: JSON.stringify({ filePath: filePath }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    if (!response.ok) {
-        console.error("Error creating image record: ", response.statusText)
+    try {
+        const signedUrl = await generateSignedUploadUrl(filePath)
+        onUploadComplete(signedUrl, filePath)
+        console.log("Signed URL: ", signedUrl)
+    } catch (error) {
+        console.error("Error generating signed URL: ", error)
+        onUploadComplete(null, filePath)
     }
-
-    const data = await response.json()
-    onUploadComplete(data.url, filePath)
-    console.log("Signed URL: ", data.url)
 }

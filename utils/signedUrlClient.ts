@@ -1,26 +1,15 @@
+import { generateSignedUploadUrl, generateSignedUploadUrls } from "@/app/actions/storage"
+
 /**
  * Generate a single signed URL for an image
  */
 export async function generateSignedUrlClient(filePath: string): Promise<string | null> {
     try {
-        const response = await fetch('/api/generate-signed', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ filePath }),
-        });
-
-        if (!response.ok) {
-            console.error('Failed to generate signed URL:', response.statusText);
-            return null;
-        }
-
-        const data = await response.json();
-        return data.url || null;
+        const signedUrl = await generateSignedUploadUrl(filePath)
+        return signedUrl
     } catch (error) {
-        console.error('Error generating signed URL:', error);
-        return null;
+        console.error('Error generating signed URL:', error)
+        return null
     }
 }
 
@@ -29,35 +18,20 @@ export async function generateSignedUrlClient(filePath: string): Promise<string 
  */
 export async function generateSignedUrlsBatch(filePaths: string[]): Promise<{ [path: string]: string | null }> {
     try {
-        const response = await fetch('/api/generate-signed', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ filePaths }),
-        });
-
-        if (!response.ok) {
-            console.error('Failed to generate signed URLs:', response.statusText);
-            return {};
-        }
-
-        const data = await response.json();
-        const result: { [path: string]: string | null } = {};
+        const signedUrls = await generateSignedUploadUrls(filePaths)
+        const result: { [path: string]: string | null } = {}
         
-        if (data.urls && Array.isArray(data.urls)) {
-            data.urls.forEach((item: { path: string; url: string | null; error: string | null }) => {
-                result[item.path] = item.url;
-                if (item.error) {
-                    console.error(`Error for ${item.path}:`, item.error);
-                }
-            });
-        }
+        signedUrls.forEach((item: { path: string; url: string | null; error: string | null }) => {
+            result[item.path] = item.url
+            if (item.error) {
+                console.error(`Error for ${item.path}:`, item.error)
+            }
+        })
 
-        return result;
+        return result
     } catch (error) {
-        console.error('Error generating signed URLs batch:', error);
-        return {};
+        console.error('Error generating signed URLs batch:', error)
+        return {}
     }
 }
 

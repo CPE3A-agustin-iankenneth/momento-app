@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useTransition } from "react"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useForm } from "react-hook-form"
@@ -26,6 +25,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { updateEntry, deleteEntry } from "@/app/actions/entries"
 
 const formSchema = z.object({
     title: z.string().min(1, "Title is required").max(70, "Title must be at most 70 characters"),
@@ -37,10 +37,9 @@ const formSchema = z.object({
 
 
 export default function EditForm({ entry }: { entry: Entry }) {
-    const [uploading, setUploading] = useState<boolean>(false);
+    const [isPending, startTransition] = useTransition()
     const [deleting, setDeleting] = useState<boolean>(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
-    const router = useRouter();
     const { tags: userTags } = useUserTags();
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -57,20 +56,9 @@ export default function EditForm({ entry }: { entry: Entry }) {
     async function handleDelete() {
         setDeleting(true);
         try {
-            const res = await fetch(`/api/entries/${entry.id}`, {
-                method: 'DELETE',
-            });
-
-            if (res.ok) {
-                router.push('/');
-                router.refresh();
-            } else {
-                const errorData = await res.json();
-                console.error('Error deleting momento:', errorData.error);
-            }
+            await deleteEntry(entry.id)
         } catch (error) {
             console.error('Error deleting momento:', error);
-        } finally {
             setDeleting(false);
             setShowDeleteDialog(false);
         }
@@ -84,20 +72,13 @@ export default function EditForm({ entry }: { entry: Entry }) {
         formData.append('content', data.content);
         formData.append('tags', JSON.stringify(data.tags));
 
-        setUploading(true);
-        const res = await fetch(`/api/entries/${entry.id}`, {
-            method: 'PUT',
-            body: formData,
-        });
-
-        if (res.ok) {
-            router.push(`/entry/${entry.id}`);
-            router.refresh(); 
-            setUploading(false);
-        } else {
-            const errorData = await res.json();
-            console.error('Error updating moment:', errorData.error);
-        }
+        startTransition(async () => {
+            try {
+                await updateEntry(entry.id, formData)
+            } catch (error) {
+                console.error('Error updating moment:', error)
+            }
+        })
     }
 
     return (
@@ -181,8 +162,8 @@ export default function EditForm({ entry }: { entry: Entry }) {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit" className="mt-4 w-full" disabled={uploading}>
-                                {uploading ? 'Uploading...' : 'Update Momento'}
+                            <Button type="submit" className="mt-4 w-full" disabled={isPending}>
+                                {isPending ? 'Updating...' : 'Update Momento'}
                             </Button>
                         </form>
                     </Form>
