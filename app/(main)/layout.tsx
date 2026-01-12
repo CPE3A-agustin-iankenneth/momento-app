@@ -26,7 +26,7 @@ export default async function RootLayout({
       <div className="hidden md:block">
         <AppSidebar />
       </div>
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 flex flex-col h-[100dvh] md:h-screen overflow-hidden">
         <div className="flex items-center justify-between md:hidden py-4 px-6 flex-shrink-0">
           <header className="text-xl">momento</header>
           <div className="flex items-center gap-1">
@@ -38,7 +38,7 @@ export default async function RootLayout({
         <div className="flex-1 flex justify-center min-h-0 overflow-hidden">
           {children}
         </div>
-        <div className="md:hidden">
+        <div className="md:hidden flex-shrink-0">
           <BottomNav />
         </div>
       </main>

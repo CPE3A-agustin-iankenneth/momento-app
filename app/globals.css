@@ -191,12 +191,17 @@ html, body {
 
 html {
   height: 100%;
+  /* Support for dynamic viewport height */
+  height: 100dvh;
   overflow: hidden;
 }
 
 body {
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
   position: fixed;
   width: 100%;
+  /* Add safe area insets for notch support */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }

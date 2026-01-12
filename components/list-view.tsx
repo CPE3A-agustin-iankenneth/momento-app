@@ -23,21 +23,23 @@ export default function ListView({ entries, date }: ListViewProps) {
     }
 
     return (
-        <div className="flex flex-col w-full h-full px-8 lg:px-0 lg:w-lg overflow-hidden">
+        <div className="flex flex-col w-full h-full px-8 lg:px-0 lg:w-lg">
             <h1 className="text-xl mb-4 mt-2 flex-shrink-0">
                 {formatDate(date)}
             </h1>
-            <div className="flex-1 min-h-0 overflow-hidden">
+            <div className="flex-1 overflow-hidden">
                 {(entries.length === 0) ? (
-                    <div>
-                        <p>No entries yet for this day</p>
+                    <div className="flex items-center justify-center h-full">
+                        <p className="text-muted-foreground">No entries yet for this day</p>
                     </div> 
                 )
                 : (
-                    <ScrollArea className="h-full w-full">
-                        {entries.map((entry) => (
-                            <DailyEntryWrapper key={entry.id} entry={entry} />
-                        ))}
+                    <ScrollArea className="h-full">
+                        <div className="space-y-4 pb-4">
+                            {entries.map((entry) => (
+                                <DailyEntryWrapper key={entry.id} entry={entry} />
+                            ))}
+                        </div>
                         <ScrollBar />
                     </ScrollArea> 
                 )}

@@ -39,14 +39,14 @@ export default function CalendarView({ entryDates, entryDateImageMap = {}, selec
     }
 
     return (
-        <div className="flex justify-center">
+        <div className="flex justify-center py-4 md:py-0">
             <Calendar 
                 entryDates={entryDates}
                 entryDateImageMap={entryDateImageMap}
                 mode="single"
                 selected={selectedDay}
                 onSelect={handleDateSelect}
-                className="w-screen lg:w-sm px-8"
+                className="w-full max-w-md px-4 md:px-8"
                 showOutsideDays={false}
                 buttonVariant="ghost"
             />
