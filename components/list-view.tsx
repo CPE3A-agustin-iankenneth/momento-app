@@ -23,11 +23,11 @@ export default function ListView({ entries, date }: ListViewProps) {
     }
 
     return (
-        <div className="flex flex-col w-full px-8 lg:px-0 lg:w-lg sm:h-full lg:h-auto overflow-hidden">
-            <h1 className="text-xl mb-4 mt-2">
+        <div className="flex flex-col w-full h-full px-8 lg:px-0 lg:w-lg overflow-hidden">
+            <h1 className="text-xl mb-4 mt-2 flex-shrink-0">
                 {formatDate(date)}
             </h1>
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-hidden">
                 {(entries.length === 0) ? (
                     <div>
                         <p>No entries yet for this day</p>

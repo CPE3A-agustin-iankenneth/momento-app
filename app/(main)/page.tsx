@@ -32,11 +32,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ d
     const entries = await getEntriesByDate(date, tz)
     
   return (
-    <div className='relative w-full h-100dvh'>
+    <div className='relative w-full h-full overflow-hidden bg-background'>
       <div className="hidden md:block">
           <SidebarTrigger className='absolute top-4 left-4 z-50'/>
       </div>
-      <div className='flex flex-col items-center h-full'>
+      <div className='flex flex-col items-center h-full overflow-hidden'>
         <DailyView entryDates={entryDatesArray} initialEntries={entries} initialDate={date} />
       </div>
     </div>

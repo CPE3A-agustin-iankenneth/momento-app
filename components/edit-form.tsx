@@ -82,10 +82,11 @@ export default function EditForm({ entry }: { entry: Entry }) {
     }
 
     return (
-        <div className="w-full max-w-sm mx-auto px-4 py-8">
+        <div className="w-full h-full overflow-y-auto">
+            <div className="max-w-sm mx-auto px-4 py-8">
             {/* Back Button */}
             <nav className="mb-6">
-                <Link href={`/entry/${entry.id}`} className="flex items-center text-muted-foreground hover:text-foreground transition-colors">
+                <Link href={`/entry/${entry.id}`} className="flex items-center text-muted-foreground hover:text-foreground active:opacity-70 transition-all duration-100">
                     <ArrowLeft className="w-5 h-5 mr-2" />
                     <span>Back to entry</span>
                 </Link>
@@ -197,6 +198,7 @@ export default function EditForm({ entry }: { entry: Entry }) {
                     </div>
                 </CardContent>
             </Card>
+            </div>
         </div>
     );
 }

@@ -48,7 +48,7 @@ export default async function GalleryPage() {
                                 href={`/entry/${entry.id}`} 
                                 prefetch={true} 
                                 key={entry.id} 
-                                className="relative aspect-square hover:opacity-80 transition-opacity ease-in-out"
+                                className="relative aspect-square hover:opacity-80 active:scale-95 active:opacity-70 transition-all duration-100 ease-in-out"
                             >
                                 <GalleryEntry entry={entry} />
                             </Link>

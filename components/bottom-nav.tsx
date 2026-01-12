@@ -62,7 +62,7 @@ export default function BottomNav() {
                             key={index}
                             onClick={view.action}
                             disabled={uploading}
-                            className="flex flex-col items-center justify-center text-sm disabled:cursor-not-allowed"
+                            className="flex flex-col items-center justify-center text-sm disabled:cursor-not-allowed active:scale-90 active:opacity-70 transition-transform duration-100"
                         >
                             {view.icon}
                         </button>
@@ -72,7 +72,7 @@ export default function BottomNav() {
                     <Link 
                         key={index} 
                         href={view.href!} 
-                        className={`flex flex-col items-center justify-center text-sm`}
+                        className={`flex flex-col items-center justify-center text-sm active:scale-90 active:opacity-70 transition-transform duration-100`}
                     >
                         {view.icon}
                     </Link>

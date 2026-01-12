@@ -93,7 +93,8 @@ export default function CreateForm({ signedUrl, filePath }: CreateFormProps) {
     }, [url, router, currentFilePath])
 
     return (
-        <div className="w-full max-w-sm mx-auto px-4 py-8">
+        <div className="w-full h-full overflow-y-auto">
+            <div className="max-w-sm mx-auto px-4 py-8">
             <Card>
                 <CardContent>
                     <Form {...form}>
@@ -175,6 +176,7 @@ export default function CreateForm({ signedUrl, filePath }: CreateFormProps) {
                     </Form>
                 </CardContent>
             </Card>
+            </div>
         </div>
     )
 }

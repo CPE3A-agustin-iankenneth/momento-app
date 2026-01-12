@@ -13,9 +13,13 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     const entries = await getEntriesByDate(date, tz)
 
     return (
-        <div className="md:w-full md:flex-row flex flex-col gap-4 h-full overflow-hidden md:justify-center md:items-center">
-            <CalendarView entryDates={entryDatesArray} entryDateImageMap={entryDateImageMap} selectedDate={date} />
-            <ListView entries={entries} date={date} />
+        <div className="md:w-full md:flex-row flex flex-col gap-0 h-full overflow-hidden md:justify-center md:items-center">
+            <div className="flex-shrink-0">
+                <CalendarView entryDates={entryDatesArray} entryDateImageMap={entryDateImageMap} selectedDate={date} />
+            </div>
+            <div className="flex-1 min-h-0 overflow-hidden">
+                <ListView entries={entries} date={date} />
+            </div>
         </div>
     )
 }

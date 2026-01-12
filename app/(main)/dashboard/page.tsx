@@ -107,7 +107,7 @@ export default async function Dashboard() {
                 </div>
                 <Link 
                     href="/profile" 
-                    className="p-2 rounded-full hover:bg-muted transition-colors"
+                    className="p-2 rounded-full hover:bg-muted active:scale-90 active:opacity-70 transition-all duration-100"
                     title="Edit Profile"
                 >
                     <Settings className="w-5 h-5 text-muted-foreground" />

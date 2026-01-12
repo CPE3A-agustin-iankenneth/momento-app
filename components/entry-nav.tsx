@@ -29,7 +29,7 @@ export default function EntryNav({ entryId, isFavorite: initialFavorite }: { ent
     return (
         <nav className="mt-4 mb-8">
             <div className="flex items-center justify-between">
-              <Link href={`/`}>
+              <Link href={`/`} className="active:scale-90 active:opacity-70 transition-all duration-100">
                   <ArrowLeft />
               </Link>
               <div className="flex items-center gap-2">
